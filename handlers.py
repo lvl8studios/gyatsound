@@ -20,7 +20,8 @@ def register_handlers(bot):
     def send_welcome(message):
         welcome_message = (
         "Welcome to GyatSound Bot!\n"
-        "Troll your friends with funny sounds!\n"
+        "Troll your friends with funny sounds!\n\n"
+        "Use /help to see all available commands."
         )
         bot.reply_to(message, welcome_message)
 
