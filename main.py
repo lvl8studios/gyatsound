@@ -12,6 +12,33 @@ from starlette.middleware.base import BaseHTTPMiddleware
 import time
 import json
 
+def save_metrics():
+    """Save metrics to a JSON file"""
+    metrics = {
+        "startup_count": startup_count,
+        "command_metrics": dict(command_metrics)
+    }
+    try:
+        with open('metrics.json', 'w') as f:
+            json.dump(metrics, f)
+        logger.info("Metrics saved successfully")
+    except Exception as e:
+        logger.error(f"Failed to save metrics: {str(e)}")
+
+def load_metrics():
+    """Load metrics from JSON file"""
+    global startup_count, command_metrics
+    try:
+        with open('metrics.json', 'r') as f:
+            metrics = json.load(f)
+            startup_count = metrics.get('startup_count', 0)
+            command_metrics.update(metrics.get('command_metrics', {}))
+        logger.info(f"Loaded metrics: startups={startup_count}, commands={dict(command_metrics)}")
+    except FileNotFoundError:
+        logger.info("No existing metrics file found")
+    except Exception as e:
+        logger.error(f"Failed to load metrics: {str(e)}")
+
 load_dotenv()
 
 API_TOKEN = os.getenv('API_TOKEN')
@@ -110,6 +137,7 @@ async def telegram_webhook(req: Request):
 async def lifespan(app: FastAPI):
     # Startup
     try:
+        load_metrics()  # Load existing metrics
         global startup_count
         startup_count += 1
         logger.info(f"API startup count: {startup_count}")
@@ -123,6 +151,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"Failed to set webhook: {str(e)}")
     yield
     # Shutdown
+    save_metrics()  # Save metrics before shutdown
     bot.remove_webhook()
 
 app.add_middleware(MetricsMiddleware)
