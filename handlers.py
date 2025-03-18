@@ -1,5 +1,6 @@
 import os
 
+
 def register_handlers(bot):
     """Register all handlers here"""
 
@@ -7,7 +8,7 @@ def register_handlers(bot):
         """Helper function to create audio sending handlers"""
         def send_audio(message):
             try:
-                with open(f'sounds/{filename}.mp3', 'rb') as audio:
+                with open(f'sounds/{filename}', 'rb') as audio:
                     bot.send_audio(message.chat.id, audio)
             except FileNotFoundError:
                 bot.reply_to(message, "Sorry, this sound file is missing 😢")
@@ -25,8 +26,8 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=['help'])
     def send_help(message):
-        # Get all available sound commands
-        sound_commands = [f"/{os.path.splitext(f)[0]} - {f} sound" 
+        # Get all available sound commands and format them nicely
+        sound_commands = [f"/{os.path.splitext(f)[0]} - {os.path.splitext(f)[0].replace('_', ' ').title()}" 
                          for f in os.listdir('sounds') 
                          if f.endswith('.mp3')]
         
