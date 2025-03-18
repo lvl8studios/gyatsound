@@ -20,15 +20,18 @@ telebot.logger.setLevel(logging.INFO)
 bot = telebot.TeleBot(API_TOKEN)
 app = FastAPI()
 
+# Initialize basic commands
 commands = [
     types.BotCommand("start", "Start the bot"),
-    types.BotCommand("running_off", "Send a funny sound"),
-    types.BotCommand("let_me_know", "Send a funny sound"),
-    types.BotCommand("oh_my_god_bruh", "Send a funny sound"),
-    types.BotCommand("wait_wait_wait", "Send a funny sound"),
-    types.BotCommand("this_was_the_banker", "Send a funny sound"),
-    types.BotCommand("hes_cooking", "Send a funny sound"),
+    types.BotCommand("help", "Show available commands"),
 ]
+
+# Dynamically add commands for each sound file
+for sound_file in os.listdir('sounds'):
+    if sound_file.endswith('.mp3'):
+        command_name = os.path.splitext(sound_file)[0]  # Remove .mp3 extension
+        commands.append(types.BotCommand(command_name, "Send a funny sound"))
+
 
 register_handlers(bot)
 bot.set_my_commands(commands)
@@ -36,12 +39,22 @@ bot.set_my_commands(commands)
 
 # --- FastAPI route to receive webhook updates --- #
 
+@app.get("/")
+async def root():
+    return {"status": "running", "webhook_url": WEBHOOK_URL}
+
+
 @app.post(WEBHOOK_PATH)
 async def telegram_webhook(req: Request):
-    json_data = await req.json()
-    update = telebot.types.Update.de_json(json_data)
-    bot.process_new_updates([update])
-    return {"status": "ok"}
+    try:
+        json_data = await req.json()
+        logger.info(f"Received update: {json_data}")
+        update = telebot.types.Update.de_json(json_data)
+        bot.process_new_updates([update])
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Error processing update: {str(e)}")
+        raise
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

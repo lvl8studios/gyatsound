@@ -1,3 +1,5 @@
+import os
+
 def register_handlers(bot):
     """Register all handlers here"""
 
@@ -23,24 +25,22 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=['help'])
     def send_help(message):
+        # Get all available sound commands
+        sound_commands = [f"/{os.path.splitext(f)[0]} - {f} sound" 
+                         for f in os.listdir('sounds') 
+                         if f.endswith('.mp3')]
+        
         help_message = (
             "Available commands:\n\n"
             "/start - Start the bot\n"
             "/help - Show this help message\n"
-            "\nSound commands:\n"
-            "/running_off - Running off sound\n"
-            "/let_me_know - Let me know sound\n"
-            "/oh_my_god_bruh - Oh my god sound\n"
-            "/wait_wait_wait - Wait wait wait sound\n"
-            "/this_was_the_banker - This was the banker sound\n"
-            "/hes_cooking - He's cooking sound"
+            "\nSound commands:\n" +
+            "\n".join(sound_commands)
         )
         bot.reply_to(message, help_message)
 
-    # Register all audio commands
-    bot.message_handler(commands=['running_off'])(create_audio_sender('running-off'))
-    bot.message_handler(commands=['let_me_know'])(create_audio_sender('let-me-know'))
-    bot.message_handler(commands=['oh_my_god_bruh'])(create_audio_sender('oh-my-god-bruh'))
-    bot.message_handler(commands=['wait_wait_wait'])(create_audio_sender('wait-wait-wait'))
-    bot.message_handler(commands=['this_was_the_banker'])(create_audio_sender('this-was-the-banker'))
-    bot.message_handler(commands=['hes_cooking'])(create_audio_sender('hes-cooking'))
+    # Dynamically register audio commands for all MP3 files
+    for sound_file in os.listdir('sounds'):
+        if sound_file.endswith('.mp3'):
+            command = os.path.splitext(sound_file)[0]  # Remove .mp3 extension
+            bot.message_handler(commands=[command])(create_audio_sender(sound_file))
