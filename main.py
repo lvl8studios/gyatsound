@@ -46,9 +46,14 @@ async def telegram_webhook(req: Request):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    bot.remove_webhook()
-    bot.set_webhook(url=WEBHOOK_URL)
-    bot.set_my_commands(commands)
+    try:
+        logger.info(f"Setting webhook URL to: {WEBHOOK_URL}")
+        bot.remove_webhook()
+        webhook_info = bot.set_webhook(url=WEBHOOK_URL)
+        logger.info(f"Webhook set result: {webhook_info}")
+        bot.set_my_commands(commands)
+    except Exception as e:
+        logger.error(f"Failed to set webhook: {str(e)}")
     yield
     # Shutdown
     bot.remove_webhook()
