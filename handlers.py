@@ -8,8 +8,11 @@ def register_handlers(bot):
         """Helper function to create audio sending handlers"""
         def send_audio(message):
             try:
+                # Send audio file
                 with open(f'sounds/{filename}', 'rb') as audio:
                     bot.send_audio(message.chat.id, audio)
+                # Delete the command message
+                bot.delete_message(message.chat.id, message.message_id)
             except FileNotFoundError:
                 bot.reply_to(message, "Sorry, this sound file is missing 😢")
             except IOError:
