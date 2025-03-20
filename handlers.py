@@ -4,20 +4,20 @@ import os
 def register_handlers(bot):
     """Register all handlers here"""
 
-    def create_audio_sender(filename):
-        """Helper function to create audio sending handlers"""
-        def send_audio(message):
+    def create_voice_sender(filename):
+        """Helper function to create voice sending handlers"""
+        def send_voice(message):
             try:
-                # Send audio file
-                with open(f'sounds/{filename}', 'rb') as audio:
-                    bot.send_audio(message.chat.id, audio)
+                # Send voice file
+                with open(f'sounds/{filename}', 'rb') as voice:
+                    bot.send_voice(message.chat.id, voice)
                 # Delete the command message
                 bot.delete_message(message.chat.id, message.message_id)
             except FileNotFoundError:
                 bot.reply_to(message, "Sorry, this sound file is missing 😢")
             except IOError:
                 bot.reply_to(message, "Sorry, there was an error playing this sound 😕")
-        return send_audio
+        return send_voice
 
     @bot.message_handler(commands=['start'])
     def send_welcome(message):
@@ -44,8 +44,8 @@ def register_handlers(bot):
         )
         bot.reply_to(message, help_message)
 
-    # Dynamically register audio commands for all MP3 files
+    # Dynamically register voice commands for all MP3 files
     for sound_file in os.listdir('sounds'):
         if sound_file.endswith('.mp3'):
             command = os.path.splitext(sound_file)[0]  # Remove .mp3 extension
-            bot.message_handler(commands=[command])(create_audio_sender(sound_file))
+            bot.message_handler(commands=[command])(create_voice_sender(sound_file))
