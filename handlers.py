@@ -1,5 +1,6 @@
 import os
 from telebot.types import ReplyParameters, Message
+from telebot.apihelper import ApiTelegramException
 
 def register_handlers(bot):
     """Register all handlers here"""
@@ -40,7 +41,13 @@ def register_handlers(bot):
                         raise
                         
                 print("Deleting command message...")
-                bot.delete_message(message.chat.id, message.message_id)
+                try:
+                    bot.delete_message(message.chat.id, message.message_id)
+                except ApiTelegramException as e:
+                    if "message can't be deleted" in str(e).lower():
+                        bot.reply_to(message, "⚠️ I need admin rights to delete messages!")
+                    else:
+                        raise
             except FileNotFoundError:
                 print(f"File not found: sounds/{filename}")
                 bot.reply_to(message, "Sorry, this sound file is missing 😢")
