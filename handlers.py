@@ -14,7 +14,6 @@ def register_handlers(bot):
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
                     reply_parameters = None
-                    print(f"Check reply to message exists: {message.reply_to_message.message_id}")
                     if message.reply_to_message.message_id:
                         print(f"Replying to message_id: {message.reply_to_message.message_id}")
                         reply_parameters = ReplyParameters(
