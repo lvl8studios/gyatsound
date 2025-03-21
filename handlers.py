@@ -23,7 +23,7 @@ def register_handlers(bot):
                     print(f"Reply params: {reply_params}")
                     
                     try:
-                        result = bot.send_voice(message.chat.id, voice, reply_params=reply_params)
+                        result = bot.send_voice(message.chat.id, voice, reply_parameters=reply_params)
                         print(f"Voice message sent successfully: {result}")
                     except Exception as e:
                         print(f"Error sending voice: {str(e)}")
