@@ -5,7 +5,7 @@ import os
 import uvicorn
 from telebot import telebot, types
 from dotenv import load_dotenv
-from handlers import register_handlers
+from handlers import register_handlers, get_commands
 from datetime import datetime
 from collections import Counter
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -53,17 +53,7 @@ bot = telebot.TeleBot(API_TOKEN)
 app = FastAPI()
 
 # Initialize basic commands
-commands = [
-    types.BotCommand("start", "Start the bot"),
-    types.BotCommand("help", "Show available commands"),
-]
-
-# Dynamically add commands for each sound file
-for sound_file in os.listdir('sounds'):
-    if sound_file.endswith('.mp3'):
-        command_name = os.path.splitext(sound_file)[0]  # Remove .mp3 extension
-        commands.append(types.BotCommand(command_name, "Send a funny sound"))
-
+_, commands = get_commands()  # Get sorted bot commands
 startup_count = 0
 command_metrics = Counter()
 start_time = datetime.now()

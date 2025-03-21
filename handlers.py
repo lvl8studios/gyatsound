@@ -1,9 +1,34 @@
 import os
-from telebot.types import ReplyParameters, Message
+from telebot.types import ReplyParameters, Message, BotCommand
 from telebot.apihelper import ApiTelegramException
+
+def get_commands():
+    """Get sorted commands for both help display and bot registration"""
+    # Get all sound files
+    sound_files = sorted([f for f in os.listdir('sounds') if f.endswith('.mp3')])
+    
+    # Create formatted commands for help display
+    help_commands = [
+        f"/{os.path.splitext(f)[0]} - {os.path.splitext(f)[0].replace('_', ' ').title()}" 
+        for f in sound_files
+    ]
+    
+    # Create bot commands list
+    bot_commands = [
+        BotCommand("start", "Start the bot"),
+        BotCommand("help", "Show available commands"),
+    ]
+    bot_commands.extend(
+        BotCommand(os.path.splitext(f)[0], "Send a funny sound")
+        for f in sound_files
+    )
+    
+    return help_commands, bot_commands
 
 def register_handlers(bot):
     """Register all handlers here"""
+    # Get sorted command lists
+    help_commands, _ = get_commands()
 
     def create_voice_sender(filename):
         """Helper function to create voice sending handlers"""
@@ -72,17 +97,12 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=['help'])
     def send_help(message):
-        # Get all available sound commands and format them nicely
-        sound_commands = [f"/{os.path.splitext(f)[0]} - {os.path.splitext(f)[0].replace('_', ' ').title()}" 
-                         for f in os.listdir('sounds') 
-                         if f.endswith('.mp3')]
-        
         help_message = (
             "Available commands:\n\n"
             "/start - Start the bot\n"
             "/help - Show this help message\n"
             "\nSound commands:\n" +
-            "\n".join(sound_commands)
+            "\n".join(help_commands)
         )
         bot.reply_to(message, help_message)
 
