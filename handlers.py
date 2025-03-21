@@ -8,13 +8,16 @@ def register_handlers(bot):
         """Helper function to create voice sending handlers"""
         def send_voice(message):
             try:
-                
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
                     # Create reply parameters if replying to a message
                     reply_params = None
                     if message.reply_to_message:
-                        reply_params = ReplyParameters(message_id=message.reply_to_message.message_id)
+                        reply_params = ReplyParameters(
+                            message_id=message.reply_to_message.message_id,
+                            chat_id=message.chat.id,
+                            allow_sending_without_reply=True
+                        )
                     
                     bot.send_voice(
                         chat_id=message.chat.id,
