@@ -8,8 +8,6 @@ def register_handlers(bot):
         """Helper function to create voice sending handlers"""
         def send_voice(message):
             try:
-                # Delete the command message first
-                bot.delete_message(message.chat.id, message.message_id)
                 
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
@@ -23,6 +21,8 @@ def register_handlers(bot):
                         voice=voice,
                         reply_parameters=reply_params
                     )
+                bot.delete_message(message.chat.id, message.message_id)
+
             except FileNotFoundError:
                 bot.reply_to(message, "Sorry, this sound file is missing 😢")
             except IOError:
