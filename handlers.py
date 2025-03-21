@@ -10,7 +10,13 @@ def register_handlers(bot):
             try:
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
-                    bot.send_voice(message.chat.id, voice)
+                    reply_params = None
+                    if message.reply_to_message:
+                        reply_params = {
+                            'reply_to_message_id': message.reply_to_message.message_id,
+                            'allow_sending_without_reply': True
+                        }   
+                    bot.send_voice(message.chat.id, voice, reply_params=reply_params)
                 # Delete the command message
                 bot.delete_message(message.chat.id, message.message_id)
             except FileNotFoundError:
