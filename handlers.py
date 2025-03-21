@@ -50,13 +50,13 @@ def register_handlers(bot):
                         raise
             except FileNotFoundError:
                 print(f"File not found: sounds/{filename}")
-                bot.reply_to(message, "Sorry, this sound file is missing 😢")
+                bot.reply_to(message, "⚠️ Sorry, this sound file is missing")
             except IOError as e:
                 print(f"IO Error: {str(e)}")
-                bot.reply_to(message, "Sorry, there was an error playing this sound 😕")
+                bot.reply_to(message, "⚠️ Sorry, there was an error playing this sound")
             except Exception as e:
                 print(f"Unexpected error: {str(e)}")
-                bot.reply_to(message, "An unexpected error occurred 😕")
+                bot.reply_to(message, "⚠️ An unexpected error occurred")
         return send_voice
 
     @bot.message_handler(commands=['start'])
