@@ -1,5 +1,5 @@
 import os
-from telebot.types import ReplyParameters
+from telebot.types import ReplyParameters, Message
 
 def register_handlers(bot):
     """Register all handlers here"""
@@ -14,13 +14,18 @@ def register_handlers(bot):
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
                     reply_parameters = None
-                    if message.reply_to_message.message_id:
-                        print(f"Replying to message_id: {message.reply_to_message.message_id}")
-                        reply_parameters = ReplyParameters(
-                            message_id=message.reply_to_message.message_id,
-                            chat_id=message.chat.id,
-                            allow_sending_without_reply=True
-                        )
+                    try:
+                        # Try to get message_id directly
+                        reply_msg_id = message.reply_to_message.message_id
+                        if reply_msg_id:
+                            reply_parameters = ReplyParameters(
+                                message_id=reply_msg_id,
+                                chat_id=message.chat.id,
+                                allow_sending_without_reply=True
+                            )
+                    except (AttributeError, TypeError):
+                        # Not a reply message or couldn't get message_id
+                        pass
                     print(f"Reply parameters: {reply_parameters}")
                     
                     try:
