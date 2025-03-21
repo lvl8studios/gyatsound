@@ -1,5 +1,5 @@
 import os
-
+from telebot.types import ReplyParameters
 
 def register_handlers(bot):
     """Register all handlers here"""
@@ -13,18 +13,23 @@ def register_handlers(bot):
                 
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
-                    reply_params = None
-                    print("Message reply print: ", message.reply_to_message)
+                    reply_parameters = None
+                    print(f"Check reply to message exists: {message.reply_to_message.message_id}")
                     if message.reply_to_message.message_id:
                         print(f"Replying to message_id: {message.reply_to_message.message_id}")
-                        reply_params = {
-                            'reply_to_message_id': message.reply_to_message.message_id,
-                            'allow_sending_without_reply': True
-                        }
-                    print(f"Reply params: {reply_params}")
+                        reply_parameters = ReplyParameters(
+                            message_id=message.reply_to_message.message_id,
+                            chat_id=message.chat.id,
+                            allow_sending_without_reply=True
+                        )
+                    print(f"Reply parameters: {reply_parameters}")
                     
                     try:
-                        result = bot.send_voice(message.chat.id, voice, reply_parameters=reply_params)
+                        result = bot.send_voice(
+                            chat_id=message.chat.id,
+                            voice=voice,
+                            reply_parameters=reply_parameters
+                        )
                         print(f"Voice message sent successfully: {result}")
                     except Exception as e:
                         print(f"Error sending voice: {str(e)}")
