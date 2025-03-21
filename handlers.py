@@ -57,7 +57,9 @@ def register_handlers(bot):
         welcome_message = (
         "Welcome to GyatSound Bot!\n"
         "Troll your friends with funny sounds!\n\n"
-        "Use /help to see all available commands."
+        "Use /help to see all available commands. \n\n"
+
+        "To enjoy the full functionality of GyatSound Bot, please give it admin rights in your group to delete messages."
         )
         bot.reply_to(message, welcome_message)
 
