@@ -37,7 +37,7 @@ async def root():
 async def telegram_webhook(req: Request):
     try:
         json_data = await req.json()
-        logger.info(f"Received update: {json_data}")
+        # logger.info(f"Received update: {json_data}")
         update = telebot.types.Update.de_json(json_data)
         bot.process_new_updates([update])
         return {"status": "ok"}
