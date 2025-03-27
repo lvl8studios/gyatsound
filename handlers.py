@@ -2,6 +2,21 @@ import os
 from telebot.types import ReplyParameters, Message, BotCommand
 from telebot.apihelper import ApiTelegramException
 from db import increment_command, get_stats, init_db
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Get authorized users from environment variable
+AUTHORIZED_USERS = [
+    int(user_id.strip()) 
+    for user_id in os.getenv('AUTHORIZED_USER_IDS', '').split(',') 
+    if user_id.strip()
+]
+
+def is_authorized(user_id: int) -> bool:
+    """Check if a user is authorized to use restricted commands"""
+    return user_id in AUTHORIZED_USERS
 
 def get_commands():
     """Get sorted commands for both help display and bot registration"""
@@ -130,6 +145,12 @@ def register_handlers(bot):
     def send_stats(message):
         if not is_command_for_me(message, bot.get_me().username):
             return
+        
+        # Check if user is authorized
+        if not is_authorized(message.from_user.id):
+            bot.reply_to(message, "⚠️ You are not authorized to use this command.")
+            return
+            
         increment_command('stats')
         stats = get_stats()
         if not stats:
