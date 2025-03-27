@@ -30,6 +30,15 @@ def register_handlers(bot):
     # Get sorted command lists
     help_commands, _ = get_commands()
 
+    def is_command_for_me(message: Message, bot_username: str) -> bool:
+        """Check if the command was meant for this bot"""
+        if not message.text:
+            return False
+        command_parts = message.text.split('@')
+        if len(command_parts) == 1:  # No @ in command
+            return True
+        return command_parts[1].lower() == bot_username.lower()
+
     def create_voice_sender(filename):
         """Helper function to create voice sending handlers"""
         def send_voice(message):
@@ -86,6 +95,8 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=['start'])
     def send_welcome(message):
+        if not is_command_for_me(message, bot.get_me().username):
+            return
         welcome_message = (
         "Welcome to GyatSound Bot!\n"
         "Troll your friends with funny sounds!\n\n"
@@ -97,6 +108,8 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=['help'])
     def send_help(message):
+        if not is_command_for_me(message, bot.get_me().username):
+            return
         help_message = (
             "Available commands:\n\n"
             "/start - Start the bot\n"
