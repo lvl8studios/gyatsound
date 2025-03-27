@@ -151,7 +151,6 @@ def register_handlers(bot):
             bot.reply_to(message, "⚠️ You are not authorized to use this command.")
             return
             
-        increment_command('stats')
         stats = get_stats()
         if not stats:
             bot.reply_to(message, "No commands have been used yet!")
