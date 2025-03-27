@@ -1,6 +1,7 @@
 import os
 from telebot.types import ReplyParameters, Message, BotCommand
 from telebot.apihelper import ApiTelegramException
+from db import increment_command, get_stats, init_db
 
 def get_commands():
     """Get sorted commands for both help display and bot registration"""
@@ -17,6 +18,7 @@ def get_commands():
     bot_commands = [
         BotCommand("start", "Start the bot"),
         BotCommand("help", "Show available commands"),
+        BotCommand("stats", "Show command usage statistics"),
     ]
     bot_commands.extend(
         BotCommand(os.path.splitext(f)[0], "Send a funny sound")
@@ -27,6 +29,7 @@ def get_commands():
 
 def register_handlers(bot):
     """Register all handlers here"""
+    init_db()  # Initialize the database
     # Get sorted command lists
     help_commands, _ = get_commands()
 
@@ -43,6 +46,8 @@ def register_handlers(bot):
         """Helper function to create voice sending handlers"""
         def send_voice(message):
             try:
+                command = message.text.split('@')[0][1:]  # Extract command without / and @bot
+                increment_command(command)  # Track command usage
                 print(f"Processing command for file: {filename}")
                 print(f"Message info: chat_id={message.chat.id}, message_id={message.message_id}")
                 
@@ -97,6 +102,7 @@ def register_handlers(bot):
     def send_welcome(message):
         if not is_command_for_me(message, bot.get_me().username):
             return
+        increment_command('start')
         welcome_message = (
         "Welcome to GyatSound Bot!\n"
         "Troll your friends with funny sounds!\n\n"
@@ -110,6 +116,7 @@ def register_handlers(bot):
     def send_help(message):
         if not is_command_for_me(message, bot.get_me().username):
             return
+        increment_command('help')
         help_message = (
             "Available commands:\n\n"
             "/start - Start the bot\n"
@@ -118,6 +125,28 @@ def register_handlers(bot):
             "\n".join(help_commands)
         )
         bot.reply_to(message, help_message)
+
+    @bot.message_handler(commands=['stats'])
+    def send_stats(message):
+        if not is_command_for_me(message, bot.get_me().username):
+            return
+        increment_command('stats')
+        stats = get_stats()
+        if not stats:
+            bot.reply_to(message, "No commands have been used yet!")
+            return
+        
+        total_uses = sum(count for _, count in stats)
+        most_used = stats[0]  # First item since results are ordered by usage_count DESC
+        
+        stats_message = (
+            "📊 Command Statistics:\n\n"
+            f"Total commands used: {total_uses}\n"
+            f"Most used command: /{most_used[0]} ({most_used[1]} times)\n\n"
+            "Top 5 commands:\n" +
+            "\n".join(f"/{cmd} - {count} times" for cmd, count in stats[:5])
+        )
+        bot.reply_to(message, stats_message)
 
     # Dynamically register voice commands for all MP3 files
     for sound_file in os.listdir('sounds'):
