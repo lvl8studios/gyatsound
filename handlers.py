@@ -117,7 +117,6 @@ def register_handlers(bot):
     def send_welcome(message):
         if not is_command_for_me(message, bot.get_me().username):
             return
-        increment_command('start')
         welcome_message = (
         "Welcome to GyatSound Bot!\n"
         "Troll your friends with funny sounds!\n\n"
@@ -131,7 +130,6 @@ def register_handlers(bot):
     def send_help(message):
         if not is_command_for_me(message, bot.get_me().username):
             return
-        increment_command('help')
         help_message = (
             "Available commands:\n\n"
             "/start - Start the bot\n"
