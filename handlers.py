@@ -63,6 +63,10 @@ def register_handlers(bot):
     def create_voice_sender(filename):
         """Helper function to create voice sending handlers"""
         def send_voice(message):
+            # Add command check at the start
+            if not is_command_for_me(message, bot.get_me().username):
+                return
+                
             try:
                 command = message.text.split('@')[0][1:]  # Extract command without / and @bot
                 increment_command(command)  # Track command usage
