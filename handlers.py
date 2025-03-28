@@ -55,7 +55,10 @@ def register_handlers(bot):
         command_parts = message.text.split('@')
         if len(command_parts) == 1:  # No @ in command
             return True
-        return command_parts[1].lower() == bot_username.lower()
+        target_bot = command_parts[1].strip().lower()
+        actual_bot = bot_username.strip().lower()
+        print(f"Command target: @{target_bot}, My username: @{actual_bot}")  # Debug log
+        return target_bot == actual_bot
 
     def create_voice_sender(filename):
         """Helper function to create voice sending handlers"""
