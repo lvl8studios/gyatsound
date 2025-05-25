@@ -66,13 +66,13 @@ def register_handlers(bot):
             # Add command check at the start
             if not is_command_for_me(message, bot.get_me().username):
                 return
-                
+
             try:
                 command = message.text.split('@')[0][1:]  # Extract command without / and @bot
                 increment_command(command)  # Track command usage
                 print(f"Processing command for file: {filename}")
                 print(f"Message info: chat_id={message.chat.id}, message_id={message.message_id}")
-                
+
                 # Send voice file
                 with open(f'sounds/{filename}', 'rb') as voice:
                     reply_parameters = None
@@ -89,7 +89,7 @@ def register_handlers(bot):
                         # Not a reply message or couldn't get message_id
                         pass
                     print(f"Reply parameters: {reply_parameters}")
-                    
+
                     try:
                         result = bot.send_voice(
                             chat_id=message.chat.id,
@@ -100,7 +100,7 @@ def register_handlers(bot):
                     except Exception as e:
                         print(f"Error sending voice: {str(e)}")
                         raise
-                        
+
                 print("Deleting command message...")
                 try:
                     bot.delete_message(message.chat.id, message.message_id)
@@ -150,20 +150,20 @@ def register_handlers(bot):
     def send_stats(message):
         if not is_command_for_me(message, bot.get_me().username):
             return
-        
+
         # Check if user is authorized
         if not is_authorized(message.from_user.id):
             bot.reply_to(message, "⚠️ You are not authorized to use this command.")
             return
-            
+
         stats = get_stats()
         if not stats:
             bot.reply_to(message, "No commands have been used yet!")
             return
-        
+
         total_uses = sum(count for _, count in stats)
         most_used = stats[0]  # First item since results are ordered by usage_count DESC
-        
+
         stats_message = (
             "📊 Command Statistics:\n\n"
             f"Total commands used: {total_uses}\n"
@@ -176,5 +176,5 @@ def register_handlers(bot):
     # Dynamically register voice commands for all MP3 files
     for sound_file in os.listdir('sounds'):
         if sound_file.endswith('.mp3'):
-            command = os.path.splitext(sound_file)[0]  # Remove .mp3 extension
+            command = os.path.splitext(sound_file)[0].lower()  # Remove .mp3 extension
             bot.message_handler(commands=[command])(create_voice_sender(sound_file))
