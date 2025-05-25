@@ -21,7 +21,7 @@ def is_authorized(user_id: int) -> bool:
 def get_commands():
     """Get sorted commands for both help display and bot registration"""
     # Get all sound files
-    sound_files = sorted([f for f in os.listdir('sounds') if f.endswith('.mp3')])
+    sound_files = sorted([f.lower() for f in os.listdir('sounds') if f.endswith('.mp3')])
     
     # Create formatted commands for help display
     help_commands = [
